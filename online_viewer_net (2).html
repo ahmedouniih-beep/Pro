@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مسابقة مراقبة المخاض - خدوجتي</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #fce4ec, #f3e5f5);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background-color: #ffffff;
+            max-width: 700px;
+            width: 100%;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-encourage {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(to right, #ff6f91, #ff9671);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            color: white;
+            font-weight: 900;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 15px rgba(255, 111, 145, 0.4);
+        }
+        .header-encourage span {
+            display: block;
+            font-size: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .progress-container {
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            height: 10px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: #4caf50;
+            transition: width 0.3s ease;
+        }
+
+        .question-counter {
+            text-align: center;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .quiz-box {
+            padding: 10px;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-btn {
+            background: #f8f9fa;
+            border: 2px solid #eee;
+            padding: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1rem;
+            text-align: right;
+            transition: all 0.2s;
+            color: #444;
+        }
+
+        .option-btn:hover:not(.disabled) {
+            background: #f0f0f0;
+            border-color: #bbb;
+        }
+
+        .correct {
+            background-color: #d4edda !important;
+            border-color: #28a745 !important;
+            color: #155724 !important;
+        }
+        .wrong {
+            background-color: #f8d7da !important;
+            border-color: #dc3545 !important;
+            color: #721c24 !important;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.9;
+        }
+
+        .nav-btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background: #6a1b9a;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            display: none;
+        }
+        .nav-btn:hover {
+            background: #4a148c;
+            transform: translateY(-2px);
+        }
+
+        /* Result Screen */
+        #result-screen {
+            display: none;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .result-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(#4caf50 var(--score-percent), #eee var(--score-percent));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+            position: relative;
+        }
+        .result-inner {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .score-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #333;
+        }
+        .score-label {
+            color: #666;
+        }
+
+        .result-message {
+            font-size: 1.5rem;
+            margin-top: 15px;
+            color: #444;
+        }
+
+        /* Review Section Styles */
+        #review-section {
+            display: none;
+            margin-top: 30px;
+            text-align: right;
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+        }
+        
+        .review-item {
+            background: #fafafa;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border-right: 5px solid #ff6f91;
+        }
+        
+        .review-q {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .review-wrong {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .review-correct {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .review-btn {
+            background: #ff6f91;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            margin-top: 10px;
+            width: 100%;
+            font-weight: bold;
+        }
+        .review-btn:hover {
+            background: #e05a7a;
+        }
+
+        .btn-restart {
+            background:#ff6f91; 
+            border:none; 
+            padding:10px 30px; 
+            color:white; 
+            border-radius:10px; 
+            cursor:pointer; 
+            margin-top:20px; 
+            font-family: 'Cairo';
+            font-weight: bold;
+        }
+        .btn-restart:hover {
+            background: #e05a7a;
+        }
+        
+        @media (max-width: 600px) {
+            .header-encourage { font-size: 1.2rem; }
+            .question-text { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app-container">
+    
+    <!-- Fixed Encouragement Header -->
+    <div class="header-encourage">
+        🌸 مرحباً يا خدوجتي 🌸
+        <span>💪 أنتِ قادرة على التفوق!</span>
+    </div>
+
+    <!-- Quiz Area -->
+    <div id="quiz-screen">
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="question-counter" id="question-counter">السؤال 1 من 15</div>
+
+        <div class="quiz-box">
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-grid" id="options-container">
+                <!-- Options will be injected here -->
+            </div>
+            
+            <button class="nav-btn" id="next-btn">السؤال التالي ➡️</button>
+        </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="result-screen">
+        <h2>🎉 انتهى الاختبار! 🎉</h2>
+        <div class="result-circle" id="result-circle">
+            <div class="result-inner">
+                <span class="score-number" id="final-score">0</span>
+                <span class="score-label">من 15</span>
+            </div>
+        </div>
+        <div class="result-message" id="result-message">ممتازة يا خدوجتي!</div>
+        <p id="result-details" style="color: #666; margin-top: 10px;"></p>
+        
+        <!-- Review Button -->
+        <button class="review-btn" id="review-btn">📖 عرض الأخطاء وتصحيحها</button>
+        
+        <!-- Review Content -->
+        <div id="review-section">
+            <h3 style="text-align: center; color: #6a1b9a;">📝 مراجعة الأخطاء</h3>
+            <div id="review-container"></div>
+        </div>
+
+        <button class="btn-restart" onclick="location.reload()">🔄 إعادة المحاولة</button>
+    </div>
+
+</div>
+
+<script>
+    // JavaScript Logic
+    
+    // 1. Data Construction (Questions based on the image)
+    const questions = [
+        {
+            q: "1. ما هو أول إجراء يجب القيام به عند دخول المرأة لقسم الولادة؟",
+            options: [
+                "أ) إجراء فحص السونار (الموجات فوق الصوتية) فوراً.",
+                "ب) فحص شامل للتأكد من عدم وجود مَخْلَق (تشوهات) تتطلب إجراءات استثنائية.",
+                "ج) إعطاء حقنة مسكنة للألم مباشرة."
+            ],
+            correct: 1
+        },
+        {
+            q: "2. في أي مرحلة من مراحل المخاض تكون المرأة في 'حالة صحة' تسمح بمواصلة المخاض؟",
+            options: [
+                "أ) إذا كانت في المرحلة الأولى من المخاض.",
+                "ب) إذا كانت في مرحلة النفاس (ما بعد الولادة).",
+                "ج) إذا كانت في حالة استثنائية تتطلب تدخلاً عاجلاً."
+            ],
+            correct: 0
+        },
+        {
+            q: "3. متى يجب التوقف عن تنفيذ إجراءات 'العناية بالولادة' وفقاً للنص؟",
+            options: [
+                "أ) عند حدوث أي نزيف بسيط.",
+                "ب) عند وجود 'استثناءات طبية' تتطلب تغيير الخطة.",
+                "ج) إذا تجاوزت مدة المخاض 12 ساعة."
+            ],
+            correct: 1
+        },
+        {
+            q: "4. كيف يتم وصف عملية البدء في تسجيل مخطط المخاض (Partogramme)؟",
+            options: [
+                "أ) يتم البدء فقط عند طلب الطبيب.",
+                "ب) يتم البدء فوراً عند دخول المرأة ويتم تعبئة المخطط خلال المرحلة النشطة.",
+                "ج) يتم البدء بعد ساعتين من المخاض."
+            ],
+            correct: 1
+        },
+        {
+            q: "5. ما هي أولى العناصر التي يجب مراقبتها في 'عناصر مراقبة الأم'؟",
+            options: [
+                "أ) النبض ودرجة الحرارة فقط.",
+                "ب) النبض، الحرارة، الضغط، والبول.",
+                "ج) ضغط الدم ومعدل التنفس فقط."
+            ],
+            correct: 1
+        },
+        {
+            q: "6. ما هي عناصر السوائل التي يتم قياسها ومراقبتها؟",
+            options: [
+                "أ) كمية البول فقط.",
+                "ب) البول، البروتين، والأسيتون.",
+                "ج) كمية السائل الأمنيوسي فقط."
+            ],
+            correct: 1
+        },
+        {
+            q: "7. ماذا يجب مراقبته فيما يتعلق بالأوعية الدموية (الأوردة)؟",
+            options: [
+                "أ) الأوعية الدموية التي تظهر في الساقين.",
+                "ب) الأوعية الدموية الظاهرة أثناء المخاض.",
+                "ج) الأوعية الدموية في المشيمة فقط."
+            ],
+            correct: 1
+        },
+        {
+            q: "8. كم مرة يتم تسجيل العلامات الحيوية (النبض، الحرارة، التنفس) في مخطط المخاض؟",
+            options: [
+                "أ) كل ساعة.",
+                "ب) كل 30 دقيقة.",
+                "ج) كل 15 دقيقة."
+            ],
+            correct: 0
+        },
+        {
+            q: "9. ما هي المعايير المحددة لمراقبة نبض الجنين؟",
+            options: [
+                "أ) يجب أن يكون النبض منتظماً بين 120-160 ضربة/دقيقة.",
+                "ب) يجب أن يكون النبض سريعاً جداً (أكثر من 180 ضربة/دقيقة).",
+                "ج) يجب أن يكون النبض بطيئاً (أقل من 100 ضربة/دقيقة)."
+            ],
+            correct: 0
+        },
+        {
+            q: "10. ماذا يحدث إذا تجاوز نبض الجنين النطاق الطبيعي (120-160)؟",
+            options: [
+                "أ) يعتبر ذلك طبيعياً تماماً ولا يحتاج لأي إجراء.",
+                "ب) يتم الإبلاغ عنه واتخاذ الإجراءات الطبية اللازمة.",
+                "ج) يتم إجراء فحص سونار فوري."
+            ],
+            correct: 1
+        },
+        {
+            q: "11. كيف يتم وصف المرحلة الثانية من عناصر المراقبة (في النص)؟",
+            options: [
+                "أ) مراقبة تقدم الجنين ونزوله.",
+                "ب) مراقبة العلامات الحيوية للأم فقط.",
+                "ج) مراقبة قوة الانقباضات الرحمية فقط."
+            ],
+            correct: 0
+        },
+        {
+            q: "12. ما الذي يجب مراقبته فيما يتعلق بالسائل الأمنيوسي (الماء)؟",
+            options: [
+                "أ) لونه وكميته (مثل نزول ماء الجنين).",
+                "ب) درجة حرارته.",
+                "ج) ضغطه داخل الرحم."
+            ],
+            correct: 0
+        },
+        {
+            q: "13. في 'عناصر تطور المخاض' (العنصر 3)، ما هي العلامة الرئيسية التي تشير إلى تقدم المخاض؟",
+            options: [
+                "أ) زيادة عدد الانقباضات.",
+                "ب) اتساع عنق الرحم ونزول رأس الجنين.",
+                "ج) ارتفاع درجة حرارة الأم."
+            ],
+            correct: 1
+        },
+        {
+            q: "14. ما هو المعدل الزمني المذكور لفحص وتقييم تقدم المخاض؟",
+            options: [
+                "أ) كل ساعتين.",
+                "ب) كل ساعة.",
+                "ج) كل 4 ساعات."
+            ],
+            correct: 0
+        },
+        {
+            q: "15. ما الذي ترمز له 'الأجهزة التي تمنع نزول الجنين' في سياق مراقبة المخاض؟",
+            options: [
+                "أ) الأجهزة الطبية المستخدمة لتسريع الولادة.",
+                "ب) الأجهزة أو المشاكل التي تعيق نزول الجنين (الموانع).",
+                "ج) الأجهزة التي تقيس نبض الجنين فقط."
+            ],
+            correct: 1
+        }
+    ];
+
+    // 2. State Variables
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let answered = false;
+    let wrongAnswers = []; // Array to store wrong answers {questionIndex, selectedIndex}
+
+    // DOM Elements
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const nextBtn = document.getElementById('next-btn');
+    const progressBar = document.getElementById('progress-bar');
+    const questionCounter = document.getElementById('question-counter');
+    const quizScreen = document.getElementById('quiz-screen');
+    const resultScreen = document.getElementById('result-screen');
+    const finalScoreSpan = document.getElementById('final-score');
+    const resultCircle = document.getElementById('result-circle');
+    const resultMessage = document.getElementById('result-message');
+    const resultDetails = document.getElementById('result-details');
+    const reviewBtn = document.getElementById('review-btn');
+    const reviewSection = document.getElementById('review-section');
+    const reviewContainer = document.getElementById('review-container');
+
+    // 3. Functions
+
+    function renderQuestion() {
+        answered = false;
+        nextBtn.style.display = 'none';
+        
+        const qData = questions[currentQuestionIndex];
+        questionText.textContent = qData.q;
+        questionCounter.textContent = `السؤال ${currentQuestionIndex + 1} من ${questions.length}`;
+        
+        const progress = ((currentQuestionIndex) / questions.length) * 100;
+        progressBar.style.width = `${progress}%`;
+
+        optionsContainer.innerHTML = '';
+        qData.options.forEach((text, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = text;
+            btn.dataset.index = index;
+            btn.onclick = () => selectOption(btn, index);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function selectOption(btn, selectedIndex) {
+        if (answered) return;
+
+        const qData = questions[currentQuestionIndex];
+        const allOptions = document.querySelectorAll('.option-btn');
+        const isCorrect = (selectedIndex === qData.correct);
+
+        allOptions.forEach(opt => opt.classList.add('disabled'));
+
+        if (isCorrect) {
+            btn.classList.add('correct');
+            score++;
+        } else {
+            btn.classList.add('wrong');
+            allOptions[qData.correct].classList.add('correct');
+            // Log the mistake
+            wrongAnswers.push({
+                questionIndex: currentQuestionIndex,
+                selected: selectedIndex,
+                correct: qData.correct
+            });
+        }
+
+        answered = true;
+        
+        if (currentQuestionIndex < questions.length - 1) {
+            nextBtn.textContent = "السؤال التالي ➡️";
+        } else {
+            nextBtn.textContent = "🎊 عرض النتيجة 🎊";
+        }
+        nextBtn.style.display = 'block';
+    }
+
+    function handleNext() {
+        if (!answered) {
+            alert("⚠️ يا خدوجتي، يجب أن تجيبي على السؤال أولاً قبل الانتقال!");
+            return;
+        }
+
+        if (currentQuestionIndex < questions.length - 1) {
+            currentQuestionIndex++;
+            renderQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        quizScreen.style.display = 'none';
+        resultScreen.style.display = 'block';
+
+        finalScoreSpan.textContent = score;
+        const percent = (score / questions.length) * 100;
+        resultCircle.style.setProperty('--score-percent', `${percent}%`);
+
+        let msg = "";
+        if (percent === 100) msg = "🌟 ممتازة يا خدوجتي! إجابة كاملة! أنتِ رائعة!";
+        else if (percent >= 80) msg = "💪 مذهلة! أداء عالٍ جداً! استمري هكذا!";
+        else if (percent >= 60) msg = "👏 جيد جداً يا خدوجتي! راجعي النقاط التي أخطأتِ فيها.";
+        else if (percent >= 40) msg = "📖 نحتاج للمراجعة يا خدوجتي! لكن لا تيأسي، المهم التعلم.";
+        else msg = "💪 لا بأس يا خدوجتي! المهم المحاولة. راجعي الدرس جيداً.";
+
+        resultMessage.textContent = msg;
+        resultDetails.textContent = `أجبتِ على ${score} من ${questions.length} بشكل صحيح.`;
+        
+        // If all answers are correct, hide review button
+        if (wrongAnswers.length === 0) {
+            reviewBtn.style.display = 'none';
+        }
+    }
+
+    function showReview() {
+        reviewSection.style.display = 'block';
+        reviewBtn.style.display = 'none'; // Hide the button after clicking
+        
+        reviewContainer.innerHTML = '';
+        
+        wrongAnswers.forEach(wrong => {
+            const qData = questions[wrong.questionIndex];
+            const selectedText = qData.options[wrong.selected];
+            const correctText = qData.options[wrong.correct];
+            
+            const item = document.createElement('div');
+            item.className = 'review-item';
+            item.innerHTML = `
+                <div class="review-q">${qData.q}</div>
+                <div>
+                    <span class="review-wrong">❌ إجابتك: ${selectedText}</span>
+                    <br>
+                    <span class="review-correct">✅ الإجابة الصحيحة: ${correctText}</span>
+                </div>
+            `;
+            reviewContainer.appendChild(item);
+        });
+        
+        // Scroll to review
+        reviewSection.scrollIntoView({behavior: "smooth"});
+    }
+
+    // 4. Event Listeners
+    nextBtn.addEventListener('click', handleNext);
+    reviewBtn.addEventListener('click', showReview);
+
+    // 5. Initialize
+    renderQuestion();
+
+</script>
+
+</body>
+</html>
